@@ -259,7 +259,7 @@ VOID cmpInst(UINT64 insAddr, std::string insDis, UINT64 memOp) {
 
 VOID testInst(UINT64 insAddr, std::string insDis, ADDRINT val_r0, ADDRINT val_r1) {
     list<struct mallocArea>::iterator i;
-    
+
     for (i = mallocAreaList.begin(); i != mallocAreaList.end(); i++) {
         if (val_r0 == val_r1 && val_r0 == i->base) {
             std::cout << std::hex << "[PTR " << val_r0 << " checked]\t\t\t" << insAddr << ": " << insDis << std::endl;
@@ -290,16 +290,6 @@ VOID Instruction(INS ins, VOID *v)
             IARG_UINT32, INS_OperandReg(ins, 1),
             IARG_MEMORYOP_EA, 0,
             IARG_REG_VALUE, REG_STACK_PTR,
-            IARG_END);
-    }
-    else if (INS_OperandCount(ins) > 1 && INS_OperandIsReg(ins, 0)){
-        INS_InsertCall(
-            ins, IPOINT_BEFORE, (AFUNPTR)spreadRegTaint,
-            IARG_ADDRINT, INS_Address(ins),
-            IARG_PTR, new string(INS_Disassemble(ins)),
-            IARG_UINT32, INS_OperandCount(ins),
-            IARG_UINT32, INS_RegR(ins, 0),
-            IARG_UINT32, INS_RegW(ins, 0),
             IARG_END);
     }
     else if (INS_Opcode(ins) == XED_ICLASS_CMP && INS_OperandIsMemory(ins, 0)){
