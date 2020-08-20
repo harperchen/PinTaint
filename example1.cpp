@@ -5,6 +5,7 @@
 #include "pin.H"
 
 using namespace std;
+// http://shell-storm.org/blog/Taint-analysis-and-pattern-matching-with-Pin/
 
 /* area of bytes tainted */
 struct range
