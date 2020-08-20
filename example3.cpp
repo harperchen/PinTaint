@@ -1,7 +1,7 @@
-#include <fstream>
 #include <asm/unistd.h>
-#include <list>
+#include <fstream>
 #include <iostream>
+#include <list>
 #include "pin.H"
 
 using namespace std;
@@ -213,6 +213,16 @@ VOID spreadRegTaint(UINT64 insAddr, std::string insDis, UINT32 opCount, REG reg_
     }
 }
 
+VOID followData(UINT64 insAddr, std::string insDis, REG reg)
+{
+    if (!REG_valid(reg))
+        return;
+
+    if (checkAlreadyRegTainted(reg)){
+        std::cout << "[FOLLOW]\t\t" << insAddr << ": " << insDis << std::endl;
+    }
+}
+
 VOID Instruction(INS ins, VOID *v)
 {
     if (INS_OperandCount(ins) > 1 && INS_MemoryOperandIsRead(ins, 0) && INS_OperandIsReg(ins, 0)){
@@ -243,6 +253,14 @@ VOID Instruction(INS ins, VOID *v)
             IARG_UINT32, INS_OperandCount(ins),
             IARG_UINT32, INS_RegR(ins, 0),
             IARG_UINT32, INS_RegW(ins, 0),
+            IARG_END);
+    }
+    if (INS_OperandCount(ins) > 1 && INS_OperandIsReg(ins, 0)){
+        INS_InsertCall(
+            ins, IPOINT_BEFORE, (AFUNPTR)followData,
+            IARG_ADDRINT, INS_Address(ins),
+            IARG_PTR, new string(INS_Disassemble(ins)),
+            IARG_UINT32, INS_RegR(ins, 0),
             IARG_END);
     }
 }
